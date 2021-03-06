@@ -10,15 +10,25 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.CLIENT_SECRET
     },(accessToken, refreshToken, profile, done)=>{
         //passport callback function
-        console.log('passport callback finction fired');
-        console.log(profile);
-        new User({
-            username: profile.displayName,
-            googleID: profile.id
-        })
-        .save()
-        .then((newUser)=>{
-            console.log('new user created', + newUser)
+        //console.log('passport callback finction fired');
+        //console.log(profile);
+
+        //check if the user exist in the database
+        User.findOne({googleID: profile.id}).then((currentUser)=>{
+            if(!currentUser){
+                //already have the user
+                new User({
+                    username: profile.displayName,
+                    googleID: profile.id
+                })
+                .save()
+                .then((newUser)=>{
+                    console.log('new user created', + newUser)
+                })
+            }
+            else{
+                console.log('iser is:', currentUser)
+            }
         })
     })
-    )
+)
