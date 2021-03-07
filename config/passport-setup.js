@@ -3,6 +3,18 @@ const GoogleStrategy = require('passport-google-oauth20');
 require('dotenv/config');
 const User = require('../models/user-model');
 
+//passing information to the user
+passport.serializeUser((user,done)=>{
+    done(null, user.id)
+});
+
+//deserializing the cookie
+passport.deserializeUser((id,done)=>{
+    User.findById(id).then((user)=>{
+        done(null,user);
+    })
+})
+
 passport.use(new GoogleStrategy({
     //options for google strategy
     callbackURL:'/auth/google/redirect',
@@ -24,10 +36,12 @@ passport.use(new GoogleStrategy({
                 .save()
                 .then((newUser)=>{
                     console.log('new user created', + newUser)
+                    done(null, newUser)
                 })
             }
             else{
-                console.log('iser is:', currentUser)
+                console.log('user is:', currentUser)
+                done(null, currentUser)
             }
         })
     })
